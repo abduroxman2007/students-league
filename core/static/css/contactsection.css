@@ -1,0 +1,239 @@
+/* Container and layout settings */
+.contactContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: rgb(255, 255, 255);
+}
+
+.contactSection {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    max-width: 100%;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Responsive layout */
+.contactInfo, .contactForm {
+    flex: 1;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Contact form container styling */
+.contactForm {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+}
+
+/* Titles and text settings */
+.contactInfo h2 {
+    color: #007bff;
+    font-size: 18px;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+}
+
+.contactInfo h1 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    line-height: 1.2;
+    word-wrap: break-word;
+}
+
+.contactInfo p {
+    color: #6c757d;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+/* Info item styling */
+.contactInfo .infoItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.contactInfo .infoItem i {
+    font-size: 24px;
+    color: #007bff;
+    margin-right: 16px;
+}
+
+.contactInfo .infoItem h4 {
+    font-size: 20px !important;
+    margin: 0;
+}
+
+.contactInfo .infoItem p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 16px;
+    word-wrap: break-word;
+}
+
+/* Contact form input styling */
+.contactForm input, .contactForm textarea {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 14px;
+    /* transition: all 0.3s ease; */
+}
+
+/* Hover effect for inputs and textarea */
+/* .contactForm input:hover, .contactForm textarea:hover {
+    transform: scale(1.01);
+    border-radius: 6px;
+} */
+
+/* Focus effects for inputs and textarea */
+.contactForm input:focus, .contactForm textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+    background-color: #f0f8ff;
+    transform: scale(1.01);
+}
+
+/* Placeholder animation */
+/* .contactForm input:focus::placeholder,
+.contactForm textarea:focus::placeholder {
+    color: #007bff;
+    transform: translateY(-20px);
+    font-size: 12px;
+    opacity: 0.7;
+    transition: 0.2s ease;
+} */
+
+/* Custom scrollbar for textarea */
+.contactForm textarea {
+    resize: vertical;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #007bff #e5e5e5;
+}
+
+.contactForm textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.contactForm textarea::-webkit-scrollbar-thumb {
+    background-color: #007bff;
+    border-radius: 4px;
+}
+
+/* Button styling */
+.contactForm button {
+    width: 100%;
+    padding: 15px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Button hover and active states */
+.contactForm button:hover {
+    background-color: #0056b3;
+    transform: scale(1.01);
+}
+
+.contactForm button:active {
+    background-color: #003d80;
+    transform: scale(0.99);
+}
+
+@media (min-width: 768px) {
+    .contactSection {
+        flex-direction: row;
+        padding: 40px;
+    }
+
+    .contactInfo, .contactForm {
+        flex: 1;
+        padding: 40px;
+    }
+
+    .contactInfo h1 {
+        font-size: 32px;
+    }
+
+    .contactInfo p,
+    .contactInfo .infoItem h4,
+    .contactInfo .infoItem p {
+        font-size: 16px;
+    }
+
+    .contactForm button {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 767px) {
+    .contactSection {
+        max-width: 100%;
+        padding: 20px;
+    }
+
+    .contactInfo h1,
+    .contactInfo p,
+    .contactInfo .infoItem h4,
+    .contactInfo .infoItem p {
+        font-size: 14px;
+    }
+}
+
+.infoItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.infoItem > div {
+    margin-left: 16px;
+}
+
+.infoItem h4 {
+    margin-bottom: 4px;
+}
+
+.infoItem p {
+    color: #b5ceff;
+}
+
+.locationIcon,
+.phoneIcon,
+.emailIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    background-color: rgb(55 88 249 / 0.05);
+    border-radius: 5px;
+    color: #3758F9;
+    font-size: 18px;
+}
+
+.locationIcon svg,
+.phoneIcon svg,
+.emailIcon svg {
+    width: 35px;
+    height: 35px;
+}

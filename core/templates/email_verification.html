@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification</title>
+    <link rel="stylesheet" href="{% static 'css/email_verification.css' %}">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <script src="{% static 'js/email_verification.js' %}" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+          <i class="bx bxs-check-shield"></i>
+        </header>
+        <h2>Email Verification</h2>
+        <form method="post" action="{% url 'core:email-verification' %}" onsubmit="return combineCode()">
+          {% csrf_token %}
+          <p class="subtext" >We have sent a 6-digit verification code to your email: <strong>{{ email }}</strong>.</p>
+          <div class="input-field">
+            <input type="number" maxlength="1" id="code1"/>
+            <input type="number" maxlength="1" disabled id="code2"/>
+            <input type="number" maxlength="1" disabled id="code3"/>
+            <input type="number" maxlength="1" disabled id="code4"/>
+            <input type="number" maxlength="1" disabled id="code5"/>
+            <input type="number" maxlength="1" disabled id="code6"/>
+          </div>
+          {{ message }}
+          <div class="timer">
+            <p class="lasttext">Time remaining: <span id="countdown">{{ remaining_time }}</span> seconds</p>
+        </div>
+        <div class="resend-container">
+            <span id="requestCodeLink" class="resend-link">Resend code</span>
+        </div>
+          <button type="submit">Verify Code</button>
+        </form>
+      </div>
+    </body>
+    <script>
+        const combineCode = () => {
+        const code1 = document.getElementById('code1').value;
+        const code2 = document.getElementById('code2').value;
+        const code3 = document.getElementById('code3').value;
+        const code4 = document.getElementById('code4').value;
+        const code5 = document.getElementById('code5').value;
+        const code6 = document.getElementById('code6').value;
+
+        // Combine the codes into a single string
+        const verificationCode = code1 + code2 + code3 + code4 + code5 + code6;
+
+        // Create a hidden input to send the combined code
+        const hiddenCodeInput = document.createElement('input');
+        hiddenCodeInput.type = 'hidden';
+        hiddenCodeInput.name = 'code';
+        hiddenCodeInput.value = verificationCode;
+
+        // Create a hidden input for the email
+        const hiddenEmailInput = document.createElement('input');
+        hiddenEmailInput.type = 'hidden';
+        hiddenEmailInput.name = 'email';
+        hiddenEmailInput.value = "{{ email }}";  // Use the email from the context
+
+        // Append the hidden inputs to the form
+        document.forms[0].appendChild(hiddenCodeInput);
+        document.forms[0].appendChild(hiddenEmailInput);
+
+        return true; // Allow the form to submit
+    };
+
+    const resendCode = () => {
+    // Simulated AJAX request to resend the code
+    fetch("{% url 'core:resend-code' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}", // Ensure the CSRF token is available
+      },
+      body: JSON.stringify({ email: "{{ email }}" }),
+    })
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error("Failed to resend code");
+        }
+      })
+      .then((data) => {
+        if (data.success) {
+          // Reset timer to 60 seconds and restart countdown
+          remainingTime = 60;
+          countdownElement.textContent = `${remainingTime}`;
+          countdownElement.parentElement.innerHTML = `Time remaining: <span id="countdown">${remainingTime}</span> seconds`;
+          startCountdown();
+        } else {
+          alert("Unable to resend code. Please try again later.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("An error occurred while resending the code.");
+      });
+  };
+
+  // Activate the resend code functionality
+  const activateResendCode = () => {
+    const newRequestCodeLink = document.getElementById("requestCodeLink");
+    newRequestCodeLink.addEventListener("click", resendCode);
+  };
+    </script>
+</html>
+

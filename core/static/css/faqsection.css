@@ -1,0 +1,99 @@
+.faqSection {
+	display: flex;
+	justify-content: center;
+	padding: 2rem 0;
+	background-color: #fcfdfe;
+	border-radius: 10px;
+  }
+  
+  .faqContainer {
+	width: 60%;
+	max-width: 100%;
+	margin: 0 auto;
+	text-align: center;
+	
+  }
+  
+  .faqItem {
+	text-align: left !important;
+	margin-bottom: 1rem;
+	border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .faqButton {
+	width: 100%;
+	text-align: left;
+	background: none;
+	border: none;
+	font-size: 1.2rem;
+	font-weight: 500;
+	color: black;
+	padding: 1rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition: color 0.7s ease;
+  }
+  
+  .faqButton:hover {
+	color: #007bff;
+  }
+  
+  .icon {
+	transition: transform 0.7s ease;
+  }
+  
+  .iconOpen {
+	transform: rotate(180deg);
+  }
+  
+  .faqContent {
+	font-size: 1rem;
+	color: gray;
+	padding: 0.5rem 1rem;
+	border-left: 4px solid #007bff;
+	max-height: 0; /* Set to 0 initially */
+	overflow: hidden;
+	opacity: 0; /* Set to 0 initially */
+	transition: max-height 0.5s ease, opacity 0.5s ease;
+}
+  
+  @keyframes slideUp {
+	from {
+	  opacity: 0;
+	  max-height: 200px;
+	}
+	to {
+	  opacity: 1;
+	  max-height: 0;
+	}
+  }
+  
+  .active .faqContent {
+	max-height: 200px; /* Set to a specific height when active */
+	opacity: 1; /* Change opacity to 1 when active */
+	display: block; /* Ensure it is displayed */
+}
+  
+  .viewAllButton {
+	margin-top: 1.5rem;
+	color: #007bff;
+	border-color: #007bff;
+	font-size: medium;
+	padding: 0.75rem 2rem;
+	border-radius: 25px;
+	transition: all 0.2s ease-in-out;
+	background-color: white;
+  }
+  
+  .viewAllButton:hover {
+	background-color: #007bff;
+	color: white;
+  }
+  
+  .FAQtext{
+	font-size: 2.5rem;
+	margin-bottom: 4rem;
+	/* margin-top: 6rem; */
+	color: black !important;
+  }

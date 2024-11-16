@@ -1,0 +1,157 @@
+.unique_about_section {
+  --bs-body-color: #1e2329;
+  --bs-body-bg: rgb(255, 255, 255);
+  --ezy-theme-color: rgb(13, 110, 253);
+  --ezy-theme-color-rgb: 13, 110, 253;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  overflow: hidden;
+  padding: 60px 0;
+}
+
+@media (min-width: 768px) {
+  .unique_about_section {
+      padding: 100px 0;
+  }
+}
+
+.unique_heading {
+  font-size: 35px;
+  line-height: 45px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 768px) {
+  .unique_heading {
+      font-size: 50px;
+      line-height: 70px;
+  }
+}
+
+.unique_subHeading {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 60px;
+}
+
+.unique_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding: 20px;
+}
+
+.unique_content p {
+  font-size: 16px;
+  line-height: 1.7;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.imgFluid {
+  border-radius: 15px;
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+}
+
+.unique_values_container {
+  width: 100%;
+  max-width: 1200px;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  /* margin: -15px; */
+  align-items: center;
+}
+
+.col, .colMd8 {
+  position: relative;
+  width: 100%;
+  padding: 15px;
+}
+
+@media (min-width: 768px) {
+  .colMd8 {
+      flex: 0 0 66.666667%;
+      max-width: 66.666667%;
+      margin: 0 auto;
+  }
+
+  .order1 {
+      order: 1;
+      flex: 0 0 50%;
+      max-width: 50%;
+  }
+
+  .order2 {
+      order: 2;
+      flex: 0 0 50%;
+      max-width: 50%;
+  }
+
+  .orderMd1 {
+      order: 1;
+  }
+
+  .orderMd2 {
+      order: 2;
+  }
+}
+
+.justifyContentCenter {
+  justify-content: center;
+}
+
+.alignItemsCenter {
+  align-items: center;
+}
+
+.textCenter {
+  text-align: center;
+}
+
+.mb4 {
+  margin-bottom: 1.5rem;
+}
+
+.mb5 {
+  margin-bottom: 3rem;
+}
+
+.mt5 {
+  margin-top: 3rem;
+}
+
+.fwBold {
+  font-weight: bold;
+}
+
+.mb0 {
+  margin-bottom: 0;
+}
+
+.psMd5 {
+  padding-left: 3rem;
+}
+
+.peMd5 {
+  padding-right: 3rem;
+}
+
+@media (min-width: 768px) {
+  .mbMd0 {
+      margin-bottom: 0;
+  }
+}

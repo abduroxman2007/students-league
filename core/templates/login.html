@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+    <style>
+        body {
+            background: url("{% static 'img/bg3.jpg' %}") no-repeat center center fixed;
+            background-size: cover;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="title">Sign in</h4>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                    <a href="#"><i class="fab fa-google"></i></a>
+                </div>
+            </div>
+
+            <div class="card-body">
+                {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                    <div style="color: red; font-weight: bold; margin: 8px;" class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <form method="post" action="{% url 'core:login' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" name="email" id="email" placeholder="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" name="password" id="password" placeholder="Password" required>
+                    </div>
+                    <div class="form-group remember-me">
+                        <label class="switch">
+                            <input type="checkbox" id="remember-me" name="remember_me">
+                            <span class="slider"></span>
+                        </label>
+                        <label for="remember-me">Remember me</label>
+                    </div>
+                    <button type="submit" class="sign-in-btn">Sign in</button>
+                </form>
+
+                <div class="signup-link">
+                    <span>Don't have an account? <a href="{% url 'core:sign_up' %}">Sign up</a></span>
+                </div>
+            </div>
+            <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</body>
+
+</html>
