@@ -5,8 +5,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.views import View
-from .utils import create_and_save_email_verification, send_verification_email
-from .models import EmailVerification, Feedback
+from .utils import send_verification_email
+from .models import *
 from django.http import JsonResponse
 from django.views.generic import TemplateView, ListView
 from django.contrib.auth.views import LogoutView
@@ -32,9 +32,9 @@ class FAQView(ListView):
         # Filter by answer status
         filter_status = self.request.GET.get('filter', '').lower()
         if filter_status == 'answered':
-            queryset = queryset.filter(answered=True)
+            queryset = queryset.filter(answer__isnull=False)
         elif filter_status == 'not_answered':
-            queryset = queryset.filter(answered=False)
+            queryset = queryset.filter(answer__isnull=True)
 
         # Filter by main topic
         main_topic = self.request.GET.get('topic')
@@ -49,9 +49,11 @@ class FAQView(ListView):
         # Search query
         search_query = self.request.GET.get('search')
         if search_query:
+            print("Search query", search_query)
+            print("Errorrrrrrrrrrrrr", queryset)
             queryset = queryset.filter(
                 Q(content__icontains=search_query) |
-                Q(user__username__icontains=search_query)
+                Q(user__email__icontains=search_query)
             )
 
         return queryset.order_by('-created_at')  # Latest questions first
@@ -141,6 +143,7 @@ class SignInView(View):
         remember_me = request.POST.get('remember-me', 'off') == 'on'
         
         # Authenticate the user
+        print("Email: ",email, "  Password: ", password)
         user = authenticate(request, username=email, password=password)
         if user is not None:
             # Check if user is verified
@@ -173,80 +176,6 @@ class SignInView(View):
         else:
             messages.error(request, "Invalid email or password.")
             return render(request, self.template_name)
-
-
-
-from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-# from django.shortcuts import get_object_or_404
-from .models import Question, Answer, User
-
-
-class DashboardView(LoginRequiredMixin, TemplateView):
-    template_name = "dashboard.html"
-    login_url = "core:login"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
-
-        if user.groups.filter(name='Student').exists():
-            # Student-specific data
-            questions = Question.objects.filter(user=user)
-            unanswered_questions = questions.filter(answer__isnull=True)
-            answers = Answer.objects.filter(question__user=user)
-
-            context.update({
-                'questions': unanswered_questions,
-                'answers': answers,
-                'personal_info': {
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'email': user.email,
-                    'phone_number': user.phone_number,
-                    'profile_picture': user.profile_picture,
-                }
-            })
-
-        elif user.groups.filter(name='Teacher').exists():
-            # Teacher-specific data
-            answered_questions = Question.objects.filter(answer__teacher=user)
-            unanswered_questions = Question.objects.filter(answer__isnull=True)
-
-            context.update({
-                'questions': {
-                    'answered': answered_questions,
-                    'unanswered': unanswered_questions,
-                },
-                'personal_info': {
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'email': user.email,
-                    'phone_number': user.phone_number,
-                    'profile_picture': user.profile_picture,
-                }
-            })
-
-        elif user.is_superuser:
-            # Admin-specific data
-            all_questions = Question.objects.all()
-            all_answers = Answer.objects.all()
-            all_students = User.objects.filter(groups__name='Student')
-            all_teachers = User.objects.filter(groups__name='Teacher')
-
-            context.update({
-                'questions': all_questions,
-                'answers': all_answers,
-                'students': all_students,
-                'teachers': all_teachers,
-                'personal_info': {
-                    'name': user.first_name,
-                    'email': user.email,
-                    'is_superuser': user.is_superuser,
-                }
-            })
-
-        return context
 
 
 
@@ -358,3 +287,191 @@ def resend_code(request):
             return JsonResponse({"success": False, "message": "Email not found."})
 
     return JsonResponse({"success": False, "message": "Invalid request method."})
+
+
+
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .utils import send_verification_email, send_password_reset_email, generate_random_token
+from django.utils import timezone
+from datetime import timedelta
+from django.views import View
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth import logout
+from django.contrib import messages
+from django.utils import timezone
+from datetime import timedelta
+
+class ProfileView(LoginRequiredMixin, View):
+    template_name = "profile.html"
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        context = {
+            'user_info': user,
+        }
+        if user.is_student == True:
+            context.update({
+                'questions': Question.objects.filter(user=user),
+                'feedback': Feedback.objects.filter(user=user).first(),
+            })
+        else:
+            print("User is teacher")
+            print(Question.objects.filter(status=False))
+            context.update({
+                'unanswered_questions': Question.objects.filter(status=False),
+                'answers': Answer.objects.filter(teacher=user),
+            })
+        
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+
+        if user.is_student:
+            if 'question' in request.POST:
+                question_text = request.POST.get('question')
+                if question_text:
+                    Question.objects.create(user=user, text=question_text)
+                    return JsonResponse({'message': 'Question created successfully'})
+                return JsonResponse({'error': 'Question text is required'}, status=400)
+
+            elif 'feedback' in request.POST:
+                if Feedback.objects.filter(user=user).exists():
+                    return JsonResponse({'error': 'Feedback already exists'}, status=400)
+                feedback_text = request.POST.get('feedback')
+                if feedback_text:
+                    Feedback.objects.create(user=user, text=feedback_text)
+                    return JsonResponse({'message': 'Feedback created successfully'})
+                return JsonResponse({'error': 'Feedback text is required'}, status=400)
+
+        elif user.is_teacher:
+            if 'answer' in request.POST:
+                question_id = request.POST.get('question_id')
+                answer_text = request.POST.get('answer')
+                question = get_object_or_404(Question, id=question_id, answered=False)
+                if answer_text:
+                    Answer.objects.create(user=user, question=question, text=answer_text)
+                    question.answered = True
+                    question.save()
+                    return JsonResponse({'message': 'Answer created successfully'})
+                return JsonResponse({'error': 'Answer text is required'}, status=400)
+
+        elif 'email_change' in request.POST:
+            new_email = request.POST.get('email')
+            if User.objects.filter(email=new_email).exists():
+                return JsonResponse({'error': 'Email is already in use'}, status=400)
+            send_verification_email(user, new_email)
+            return JsonResponse({'message': 'Verification email sent successfully'})
+
+        elif 'password_reset' in request.POST:
+            token = generate_random_token()
+            expiration_time = timezone.now() + timedelta(hours=1)
+            PasswordResetToken.objects.create(user=user, token=token, expiration_time=expiration_time)
+            send_password_reset_email(user, token)
+            return JsonResponse({'message': 'Password reset email sent successfully'})
+
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        body = json.loads(request.body)
+
+        if 'user_info' in body:
+            user.first_name = body.get('first_name', user.first_name)
+            user.last_name = body.get('last_name', user.last_name)
+            user.phone_number = body.get('phone', user.phone_number)
+            user.save()
+            return JsonResponse({'message': 'User information updated successfully'})
+
+        elif user.is_student and 'feedback' in body:
+            feedback = get_object_or_404(Feedback, user=user)
+            feedback.text = body.get('feedback', feedback.text)
+            feedback.save()
+            return JsonResponse({'message': 'Feedback updated successfully'})
+
+        elif user.is_teacher and 'answer' in body:
+            answer_id = body.get('answer_id')
+            answer_text = body.get('answer')
+            answer = get_object_or_404(Answer, id=answer_id, user=user)
+            if answer_text:
+                answer.text = answer_text
+                answer.save()
+                return JsonResponse({'message': 'Answer updated successfully'})
+
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    def delete(self, request, *args, **kwargs):
+        user = request.user
+        body = json.loads(request.body)
+
+        if user.is_student and 'question_id' in body:
+            question = get_object_or_404(Question, id=body.get('question_id'), user=user)
+            question.delete()
+            return JsonResponse({'message': 'Question deleted successfully'})
+
+        elif user.is_teacher and 'answer_id' in body:
+            answer = get_object_or_404(Answer, id=body.get('answer_id'), user=user)
+            answer.delete()
+            return JsonResponse({'message': 'Answer deleted successfully'})
+
+        elif 'feedback' in body:
+            feedback = get_object_or_404(Feedback, user=user)
+            feedback.delete()
+            return JsonResponse({'message': 'Feedback deleted successfully'})
+
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+from django.views import View
+from django.shortcuts import render, redirect
+from .models import PasswordResetToken
+from .utils import send_password_reset_email, generate_random_token
+
+class RequestPasswordResetView(View):
+    def post(self, request):
+        email = request.POST.get('email')
+        user = User.objects.filter(email=email).first()
+        
+        if user:
+            token = generate_random_token()
+            expiration_time = timezone.now() + timedelta(hours=1)  # Token valid for 1 hour
+            
+            # Save the token in the database
+            PasswordResetToken.objects.create(user=user, token=token, expiration_time=expiration_time)
+            
+            # Send the password reset email
+            send_password_reset_email(user, token)
+            messages.success(request, "Password reset email sent.")
+        else:
+            messages.error(request, "No user found with this email.")
+        
+        return redirect('core:login')  # Redirect to login or another page
+    
+
+class ResetPasswordView(View):
+    def get(self, request, token):
+        # Check if the token is valid
+        password_reset_token = PasswordResetToken.objects.filter(token=token).first()
+        if password_reset_token and not password_reset_token.is_expired():
+            return render(request, 'reset_password.html', {'token': token})
+        else:
+            messages.error(request, "Invalid or expired token.")
+            return redirect('core:login')
+
+    def post(self, request, token):
+        new_password = request.POST.get('new_password')
+        new_password = request.POST.get('new_password')
+        password_reset_token = PasswordResetToken.objects.filter(token=token).first()
+        
+        if password_reset_token and not password_reset_token.is_expired():
+            user = password_reset_token.user
+            user.set_password(new_password)
+            user.save()
+            password_reset_token.delete()  # Optionally delete the token after use
+            messages.success(request, "Your password has been reset successfully.")
+            return redirect('core:login')
+        else:
+            messages.error(request, "Invalid or expired token.")
+            return redirect('core:login')

@@ -9,7 +9,7 @@ from .models import (
     Insight, 
     Feedback,
     MainTopic,
-    SubTopic
+    SubTopic, TeacherProfile, StudentProfile
 )
 
 @admin.action(description='Promote selected users to teachers')
@@ -18,12 +18,20 @@ def promote_to_teacher(modeladmin, request, queryset):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'is_active', 'is_teacher')
+    list_display = ('email', 'first_name', 'last_name', 'is_active', 'is_teacher', 'is_student',)
     actions = [promote_to_teacher]
 
 @admin.register(EmailVerification)
 class EmailVerificationAdmin(admin.ModelAdmin):
     list_display = ('user', 'verification_code', 'verified', 'created_at')
+
+@admin.register(TeacherProfile)
+class TeacherProfileAdmin(admin.ModelAdmin):
+    list_display = ('user',)
+
+@admin.register(StudentProfile)
+class StudentProfileAdmin(admin.ModelAdmin):
+    list_display = ('user',)
 
 @admin.register(MainTopic)
 class MainTopicAdmin(admin.ModelAdmin):

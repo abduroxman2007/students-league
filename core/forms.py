@@ -4,7 +4,45 @@ from .models import User, Question, Answer, Feedback, MainTopic, SubTopic
 from django.contrib.auth.forms import AuthenticationForm
 
 from django import forms
+from django import forms
+from django.contrib.auth.forms import PasswordChangeForm as BasePasswordChangeForm
 
+
+from django import forms
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'phone_number']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+        }
+        labels = {
+            'first_name': 'First Name',
+            'last_name': 'Last Name',
+            'email': 'Email',
+            'phone_number': 'Phone Number',
+        }
+
+class PasswordChangeForm(BasePasswordChangeForm):
+    old_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Current Password'}),
+        label='Current Password',
+    )
+    new_password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'New Password'}),
+        label='New Password',
+    )
+    new_password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm New Password'}),
+        label='Confirm New Password',
+    )
 class ContactForm(forms.Form):
     full_name = forms.CharField(max_length=255, widget=forms.TextInput(attrs={"placeholder": "Your full name"}))
     email = forms.EmailField(widget=forms.EmailInput(attrs={"placeholder": "Your email"}))

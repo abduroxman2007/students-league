@@ -20,7 +20,7 @@ def create_and_save_email_verification(user):
     )
     return email_verification
 
-def send_verification_email(user):
+def send_verification_email(user, emaul=None):
     """Send verification email with the verification code."""
     email_verification = EmailVerification.objects.get(user=user)
     verification_code = email_verification.verification_code
@@ -33,8 +33,10 @@ def send_verification_email(user):
 
     If you did not register for this account, please ignore this email.
     """
+    # Use the provided email or fallback to user.email if not provided
+    email_to_send = email if email else user.email
 
-    email = EmailMessage(mail_subject, message, to=[user.email])
+    email = EmailMessage(mail_subject, message, to=[email_to_send])
     
     # Send email
     if not email.send():

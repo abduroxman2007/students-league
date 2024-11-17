@@ -140,78 +140,81 @@
 
   <div class="faq-page">
     <aside class="faq-sidebar">
-          
         <div class="left-section">
-            <label for="text">Search any question</label>
-            <div class="search-bar">
-                <i class="search-icon"></i>
-                <input type="text" placeholder="Search questions..." />
-            </div>
-            <hr>
-            <div class="filter-menu">
-                <label class="filter">Filter</label>
-                <i class="filter-icon"></i>
-                <span class="filter-text"></span>
-                <select>
-                    <option value="all">All</option>
-                    <option value="answered">Answered</option>
-                    <option value="not-answered">Not Answered</option>
-                </select>
-            </div>
+            <label for="search-bar">Search any question</label>
+            <form method="get">
+                <div class="search-bar">
+                    <input type="text" name="search" id="search-bar" placeholder="Search questions..." value="{{ search_query }}">
+                </div>
+                <div class="filter-menu">
+                    <label for="filter">Filter</label>
+                    <select name="filter" id="filter">
+                        <option value="all" {% if filter == "all" %}selected{% endif %}>All</option>
+                        <option value="answered" {% if filter == "answered" %}selected{% endif %}>Answered</option>
+                        <option value="not_answered" {% if filter == "not_answered" %}selected{% endif %}>Not Answered</option>
+                    </select>
+                    <button type="submit">Apply</button>
+                </div>
+            </form>
         </div>
     </aside>
 
-    <main class="faq-main">
-      <h1>Frequently Asked Questions</h1>
-      <p>Explore answers to common questions or ask your own.</p>
+    <main class="faq-main" style="text-align: center">
+        <h1>Frequently Asked Questions</h1>
+        <p>Explore answers to common questions or ask your own.</p>
 
-      <div class="questions">
-        <!-- Question 1: Answered -->
-        <div class="question">
-            <div class="question-header">
-                <img src="student-avatar.jpg" alt="Student Avatar" class="avatar" />
-                <span class="student-name">John Doe</span>
-                <span class="time-posted">2 hours ago</span>
-            </div>
-            <p class="question-content">What is the difference between a metaphor and a simile?</p>
-            <span class="see-answer" onclick="toggleAnswer(this)">See Answer</span>
-            <div class="answer" style="display: none;">
-                <p class="answer-content">A metaphor compares two things without using "like" or "as," while a simile does.</p>
-            </div>
-        </div>
+        <div class="questions">
+            {% for question in questions %}
+                <div class="question">
+                    <div class="question-header">
+                        <img src="{{ question.user.profile_picture.url }}" alt="{{ question.user.first_name }}" class="avatar">
+                        <span class="student-name">{{ question.user.first_name }}</span>
+                        <span class="time-posted">{{ question.created_at|timesince }} ago</span>
+                    </div>
+                    <p class="question-content">{{ question.content }}</p>
 
-        <!-- Question 2: Not Answered (Teacher View) -->
-        <div class="question">
-            <div class="question-header">
-                <img src="student-avatar.jpg" alt="Student Avatar" class="avatar" />
-                <span class="student-name">Jane Smith</span>
-                <span class="time-posted">5 hours ago</span>
-            </div>
-            <p class="question-content">Can someone explain Newton's Third Law?</p>
-            <span class="see-answer" onclick="showReplyField(this)">Reply to Question</span>
-            <div class="reply-field" style="display: none;">
-                <textarea placeholder="Write your answer here..."></textarea>
-                <div class="reply-actions">
-                    <button class="cancel-btn">Cancel</button>
-                    <button class="save-btn">Save</button>
+                    {% if is_teacher and question.answered %}
+                                <span class="see-answer" onclick="toggleAnswer(this)">See Answer</span>
+                                <div class="answer" style="display: none;">
+                                    <p>{{ question.answer.content }}</p>
+                                </div>
+                    {% elif is_teacher and not question.answered %}      
+                        <span class="see-answer" onclick="showReplyField(this)">Reply to Question</span>
+                        <form method="post" class="reply-field" style="display: none;">
+                            {% csrf_token %}
+                            <textarea name="answer" placeholder="Write your answer here..."></textarea>
+                            <input type="hidden" name="question_id" value="{{ question.id }}">
+                            <div class="reply-actions">
+                                <button type="button" class="cancel-btn">Cancel</button>
+                                <button type="submit" class="save-btn">Save</button>
+                            </div>
+                        </form>
+                    {% else %}
+                        {% if question.answered %}
+                            <span class="see-answer" onclick="toggleAnswer(this)">See Answer</span>
+                            <div class="answer" style="display: none;">
+                                <p>{{ question.answer.content }}</p>
+                            </div>
+                        {% else %}
+                            <!-- <p class="unanswered">This question has not been answered yet.</p> -->
+                        {% endif %}
+                    {% endif %}
                 </div>
-            </div>
+            {% endfor %}
         </div>
-    </div>
-        <!-- Paginator -->
-        <div class="paginator">
-            <span class="prev-icon" onclick="goToPreviousPage()">&lt;&lt;</span>
-            <span class="page-number">1</span>
-            <span class="next-icon" onclick="goToNextPage()">&gt;&gt;</span>
-        </div>
-    
-        <!-- Ask a Question Button -->
-        <div class="ask-question">
-            <button>Ask a Question</button>
-        </div>
+        {% if questions %}
+          <div class="paginator">
+              <span class="prev-icon">{% if questions.has_previous %}<a href="?page={{ questions.previous_page_number }}">&lt;&lt;</a>{% endif %}</span>
+              <span class="page-number">{{ questions.number }}</span>
+              <span class="next-icon">{% if questions.has_next %}<a href="?page={{ questions.next_page_number }}">&gt;&gt;</a>{% endif %}</span>
+          </div>
+        {% endif%}  
 
+        <div class="ask-question">
+            <a href="{% url 'core:profile' %}" class="btn">Ask a Question</a>
+        </div>
     </main>
-  </div> 
+</div>
 
   <footer class="footer pt-5 mt-5">
     <div class="container">

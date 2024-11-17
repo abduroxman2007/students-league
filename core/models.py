@@ -5,7 +5,7 @@ from django.conf import settings  # To reference the User model
 from django.core.exceptions import ValidationError
 
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, email, password=None, role='student', **extra_fields):
         if not email:
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
@@ -13,7 +13,13 @@ class UserManager(BaseUserManager):
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
+
+        if role == 'student':
+            StudentProfile.objects.create(user=user)
+        elif role == 'teacher':
+            TeacherProfile.objects.create(user=user)
         return user
+
 
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
@@ -29,16 +35,23 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/',  null=True, blank=True, default='profile_pictures/defaultAvatar.png')
     
+    # New field to indicate user role
+    ROLE_CHOICES = [
+        ('student', 'Student'),
+        ('teacher', 'Teacher'),
+    ]
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')  # Default to student
+    
     objects = UserManager()
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     def is_teacher(self):
-        return hasattr(self, 'teacherprofile')
+        return self.role == 'teacher'
 
     def is_student(self):
-        return hasattr(self, 'studentprofile')
+        return self.role == 'student'
 
 import random
 import string
