@@ -49,48 +49,20 @@ class FAQView(ListView):
         # Search query
         search_query = self.request.GET.get('search')
         if search_query:
-            print("Search query", search_query)
-            print("Errorrrrrrrrrrrrr", queryset)
             queryset = queryset.filter(
                 Q(content__icontains=search_query) |
                 Q(user__email__icontains=search_query)
             )
 
+        # If the user is a teacher, return their answered questions and answers
+        # if self.request.user.is_teacher():
+        #     queryset = queryset.filter(answer__teacher=self.request.user)
+
+        # If the user is a student, return all questions
+        elif self.request.user.is_student():
+            pass  # No additional filtering needed for students
+
         return queryset.order_by('-created_at')  # Latest questions first
-
-    def get_context_data(self, **kwargs):
-        """
-        Add pagination and filter metadata to the context.
-        """
-        context = super().get_context_data(**kwargs)
-
-        # Paginate questions manually for custom control
-        questions = context['questions']
-        paginator = Paginator(questions, self.paginate_by)
-
-        page = self.request.GET.get('page')
-        try:
-            paginated_questions = paginator.page(page)
-        except PageNotAnInteger:
-            paginated_questions = paginator.page(1)
-        except EmptyPage:
-            paginated_questions = paginator.page(paginator.num_pages)
-
-        context['questions'] = paginated_questions
-
-        # Add current filters to context
-        context['filter'] = self.request.GET.get('filter', '')
-        context['topic'] = self.request.GET.get('topic', '')
-        context['subtopic'] = self.request.GET.get('subtopic', '')
-        context['search_query'] = self.request.GET.get('search', '')
-
-        # Add metadata for dynamic filtering
-        context['filters'] = ['Answered', 'Not Answered']
-        context['main_topics'] = self.model.objects.values_list('main_topic__name', flat=True).distinct()
-        context['sub_topics'] = self.model.objects.values_list('sub_topic__name', flat=True).distinct()
-
-        return context
-
 
 class ContactView(FormView):
     template_name = "contact.html"  # Path to your contact form template
@@ -145,7 +117,9 @@ class SignInView(View):
         # Authenticate the user
         print("Email: ",email, "  Password: ", password)
         user = authenticate(request, username=email, password=password)
+        print("USer: ",user)
         if user is not None:
+            print("Email: ",email, "  Password: ", password)
             # Check if user is verified
             try:
                 email_verification = EmailVerification.objects.get(user=user)
@@ -216,7 +190,7 @@ class RegisterView(View):
             password=password,
             first_name=first_name,
             last_name=last_name,
-            is_active=False
+            is_active=True
         )
 
         # Create and send email verification
@@ -245,13 +219,13 @@ class EmailVerificationView(View):
                 user__email=email,
                 verification_code=verification_code
             )
+            print("Verificatiion object: ", verification)
 
-            # Check if the code is expired
-            if verification.is_expired():
+            if verification.is_expired() == True:
+                print("Code was expired")
                 messages.error(request, "The verification code has expired.")
                 return render(request,  'email_verification.html', {'email': email, 'remaining_time': request.session.get('remaining_time')})
 
-            # Mark user as verified and active
             verification.verified = True
             verification.save()
             user = verification.user
@@ -311,14 +285,13 @@ class ProfileView(LoginRequiredMixin, View):
         context = {
             'user_info': user,
         }
-        if user.is_student == True:
+        print(Question.objects.filter(status=False))
+        if user.is_student():
             context.update({
                 'questions': Question.objects.filter(user=user),
                 'feedback': Feedback.objects.filter(user=user).first(),
             })
         else:
-            print("User is teacher")
-            print(Question.objects.filter(status=False))
             context.update({
                 'unanswered_questions': Question.objects.filter(status=False),
                 'answers': Answer.objects.filter(teacher=user),
@@ -328,44 +301,79 @@ class ProfileView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         user = request.user
+        body = {}
 
-        if user.is_student:
-            if 'question' in request.POST:
-                question_text = request.POST.get('question')
-                if question_text:
-                    Question.objects.create(user=user, text=question_text)
-                    return JsonResponse({'message': 'Question created successfully'})
-                return JsonResponse({'error': 'Question text is required'}, status=400)
+        if request.FILES is None:
+            body = json.loads(request.body)
+            print("maybe it will work")
 
-            elif 'feedback' in request.POST:
+        if user.is_student():
+            print("Not worked yet: ", request.FILES)
+            if 'main_topic' in request.POST:
+                    print("It did work")
+                    question_text = request.POST.get('content')
+                    main_topic_id = request.POST.get('main_topic')
+                    sub_topic_id = request.POST.get('sub_topic')
+                    attachments = request.FILES.get('attachments')
+                    print("attachments: ", main_topic_id, sub_topic_id)
+                    print("attachments: ", attachments)
+
+                    if question_text and main_topic_id and sub_topic_id:
+                        print("will not be here soon ig")
+                        main_topic = get_object_or_404(MainTopic, name=main_topic_id)
+                        print("will not be here soon ig")
+                        sub_topic = get_object_or_404(SubTopic, name=sub_topic_id, main_topic=main_topic)
+                        print("will not be here soon ig")
+
+                        Question.objects.create(
+                            user=user,
+                            content=question_text,
+                            main_topic=main_topic,
+                            sub_topic=sub_topic,
+                            attachments=attachments
+                        )
+                        messages.success(request, "Question created successfully")
+                        return redirect('core:faq')  # Redirect to profile after successful question creation
+
+
+            elif 'feedback' in body:
                 if Feedback.objects.filter(user=user).exists():
                     return JsonResponse({'error': 'Feedback already exists'}, status=400)
-                feedback_text = request.POST.get('feedback')
+                feedback_text = body.get('feedback')
                 if feedback_text:
-                    Feedback.objects.create(user=user, text=feedback_text)
+                    Feedback.objects.create(user=user, feedback=feedback_text)
                     return JsonResponse({'message': 'Feedback created successfully'})
                 return JsonResponse({'error': 'Feedback text is required'}, status=400)
 
-        elif user.is_teacher:
-            if 'answer' in request.POST:
-                question_id = request.POST.get('question_id')
-                answer_text = request.POST.get('answer')
-                question = get_object_or_404(Question, id=question_id, answered=False)
+            
+        elif user.is_teacher():
+            print(request.POST)
+            print(request.POST)
+            if 'answer' in body or 'answer' in request.POST:
+                if 'answer' in request.POST:
+                    question_id = request.POST.get('question_id')
+                    answer_text = request.POST.get('answer')
+                else:
+                    question_id = body.get('question_id')
+                    answer_text = body.get('answer')    
+                print(question_id)    
+                question = get_object_or_404(Question, id=question_id, status=False)
                 if answer_text:
-                    Answer.objects.create(user=user, question=question, text=answer_text)
-                    question.answered = True
+                    print(" Answer : ", answer_text)
+                    Answer.objects.create(teacher=user, question=question, content=answer_text)
+                    question.status = True
                     question.save()
                     return JsonResponse({'message': 'Answer created successfully'})
                 return JsonResponse({'error': 'Answer text is required'}, status=400)
 
-        elif 'email_change' in request.POST:
-            new_email = request.POST.get('email')
+        elif 'email_change' in body or 'email_change' in request.POST:
+            new_email = body.get('email')
             if User.objects.filter(email=new_email).exists():
                 return JsonResponse({'error': 'Email is already in use'}, status=400)
             send_verification_email(user, new_email)
             return JsonResponse({'message': 'Verification email sent successfully'})
 
-        elif 'password_reset' in request.POST:
+        elif 'password_reset' in body or 'password_reset' in request.POST:
             token = generate_random_token()
             expiration_time = timezone.now() + timedelta(hours=1)
             PasswordResetToken.objects.create(user=user, token=token, expiration_time=expiration_time)
@@ -379,24 +387,24 @@ class ProfileView(LoginRequiredMixin, View):
         body = json.loads(request.body)
 
         if 'user_info' in body:
-            user.first_name = body.get('first_name', user.first_name)
-            user.last_name = body.get('last_name', user.last_name)
-            user.phone_number = body.get('phone', user.phone_number)
+            user.first_name = body['user_info'].get('first_name', user.first_name)
+            user.last_name = body['user_info'].get('last_name', user.last_name)
+            user.phone_number = body['user_info'].get('phone_number', user.phone_number)
             user.save()
             return JsonResponse({'message': 'User information updated successfully'})
 
-        elif user.is_student and 'feedback' in body:
+        elif user.is_student() and 'feedback' in body:
             feedback = get_object_or_404(Feedback, user=user)
-            feedback.text = body.get('feedback', feedback.text)
+            feedback.feedback = body.get('feedback', feedback.feedback)
             feedback.save()
             return JsonResponse({'message': 'Feedback updated successfully'})
 
-        elif user.is_teacher and 'answer' in body:
+        elif user.is_teacher() and 'answer' in body:
             answer_id = body.get('answer_id')
             answer_text = body.get('answer')
-            answer = get_object_or_404(Answer, id=answer_id, user=user)
+            answer = get_object_or_404(Answer, id=answer_id, teacher=user)
             if answer_text:
-                answer.text = answer_text
+                answer.content = answer_text
                 answer.save()
                 return JsonResponse({'message': 'Answer updated successfully'})
 
@@ -406,13 +414,16 @@ class ProfileView(LoginRequiredMixin, View):
         user = request.user
         body = json.loads(request.body)
 
-        if user.is_student and 'question_id' in body:
+        if user.is_student() and 'question_id' in body:
             question = get_object_or_404(Question, id=body.get('question_id'), user=user)
             question.delete()
             return JsonResponse({'message': 'Question deleted successfully'})
 
-        elif user.is_teacher and 'answer_id' in body:
-            answer = get_object_or_404(Answer, id=body.get('answer_id'), user=user)
+        elif user.is_teacher() and 'answer_id' in body:
+            answer = get_object_or_404(Answer, id=body.get('answer_id'), teacher=user)
+            question = get_object_or_404(Question, id=answer.question.id)
+            question.status = False
+            question.save()
             answer.delete()
             return JsonResponse({'message': 'Answer deleted successfully'})
 

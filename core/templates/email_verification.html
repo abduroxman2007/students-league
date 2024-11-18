@@ -28,7 +28,7 @@
           </div>
           {{ message }}
           <div class="timer">
-            <p class="lasttext">Time remaining: <span id="countdown">{{ remaining_time }}</span> seconds</p>
+            <p class="lasttext">Time remaining: <span id="countdown">{{ remaining_time }}</span> minutes</p>
         </div>
         <div class="resend-container">
             <span id="requestCodeLink" class="resend-link">Resend code</span>
@@ -90,7 +90,7 @@
           // Reset timer to 60 seconds and restart countdown
           remainingTime = 60;
           countdownElement.textContent = `${remainingTime}`;
-          countdownElement.parentElement.innerHTML = `Time remaining: <span id="countdown">${remainingTime}</span> seconds`;
+          countdownElement.parentElement.innerHTML = `Time remaining: <span id="countdown">${remainingTime}</span> minutes  `;
           startCountdown();
         } else {
           alert("Unable to resend code. Please try again later.");

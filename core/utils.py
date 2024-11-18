@@ -20,7 +20,7 @@ def create_and_save_email_verification(user):
     )
     return email_verification
 
-def send_verification_email(user, emaul=None):
+def send_verification_email(user, email=None):
     """Send verification email with the verification code."""
     email_verification = EmailVerification.objects.get(user=user)
     verification_code = email_verification.verification_code

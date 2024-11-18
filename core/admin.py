@@ -9,7 +9,7 @@ from .models import (
     Insight, 
     Feedback,
     MainTopic,
-    SubTopic, TeacherProfile, StudentProfile
+    SubTopic
 )
 
 @admin.action(description='Promote selected users to teachers')
@@ -24,14 +24,6 @@ class UserAdmin(admin.ModelAdmin):
 @admin.register(EmailVerification)
 class EmailVerificationAdmin(admin.ModelAdmin):
     list_display = ('user', 'verification_code', 'verified', 'created_at')
-
-@admin.register(TeacherProfile)
-class TeacherProfileAdmin(admin.ModelAdmin):
-    list_display = ('user',)
-
-@admin.register(StudentProfile)
-class StudentProfileAdmin(admin.ModelAdmin):
-    list_display = ('user',)
 
 @admin.register(MainTopic)
 class MainTopicAdmin(admin.ModelAdmin):

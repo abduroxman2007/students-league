@@ -114,6 +114,7 @@ body {
     margin-bottom: 20px;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: left;
   }
   
   .question-header {
@@ -147,6 +148,7 @@ body {
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
+    text-align: left !important;
   }
   
   .answer {
@@ -276,6 +278,7 @@ body {
 }
 .question-content {
     margin-bottom: 10px;
+    text-align: left !important;
 }
 .see-answer {
     color: #007bff;

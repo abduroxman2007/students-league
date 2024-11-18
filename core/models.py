@@ -14,11 +14,6 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
 
-        if role == 'student':
-            StudentProfile.objects.create(user=user)
-        elif role == 'teacher':
-            TeacherProfile.objects.create(user=user)
-        return user
 
 
     def create_superuser(self, email, password=None, **extra_fields):
@@ -48,10 +43,14 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['first_name', 'last_name']
 
     def is_teacher(self):
-        return self.role == 'teacher'
+        if self.role == 'teacher':
+            return True
+        return False
 
     def is_student(self):
-        return self.role == 'student'
+        if self.role == 'student':
+            return True
+        return False
 
 import random
 import string
@@ -81,7 +80,7 @@ class EmailVerification(models.Model):
 
     def reset_code(self):
         self.verification_code = self.generate_verification_code()
-        self.expiration_time = timezone.now() + timedelta(seconds=60)  # Reset expiration time
+        self.expiration_time = timezone.now() + timedelta(minutes=5)  # Reset expiration time
         self.save()
 
     def __str__(self):
@@ -155,18 +154,11 @@ class Answer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
-        if not self.teacher.is_teacher:
+        if not self.teacher.is_teacher():
             raise ValidationError({
                 'teacher': 'Only teachers can create answers. This user is not a teacher.'
             })
         
-        # Optional: Check if the question already has an answer
-        if (self.question.answer.exists() and 
-            self.question.answer.first().id != self.id):
-            raise ValidationError({
-                'question': 'This question already has an answer'
-            })
-
     def save(self, *args, **kwargs):
         self.clean()
         super().save(*args, **kwargs)
@@ -204,22 +196,6 @@ class PasswordResetToken(models.Model):
         return timezone.now() > self.expiration_time
 
 # core/models.py
-
-class TeacherProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='teacherprofile')
-    # bio = models.TextField(blank=True)
-    # Add any teacher-specific fields here (e.g., subjects taught)
-    
-    def __str__(self):
-        return f"Teacher Profile for {self.user.email}"
-
-class StudentProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='studentprofile')
-    # grade_level = models.CharField(max_length=20, blank=True)
-    # Add any student-specific fields here (e.g., current courses)
-    
-    def __str__(self):
-        return f"Student Profile for {self.user.email}"
 
 
 class Contact(models.Model):

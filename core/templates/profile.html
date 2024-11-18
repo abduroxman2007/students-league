@@ -1,102 +1,413 @@
+{% extends 'base.html' %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-    <link rel="icon" href="{% static 'images/favicon.ico' %}">
+    <link rel="icon" type="image/png" href="{% static '/img/favicon.ico' %}">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/material-kit.css' %}" />
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
+
 <body>
-    <div class="profile-container">
-        <h1 class="profile-header">Profile</h1>
+    {% block content %}
+    <style>
+        .content-section {
+            display: none;
+        }
 
-        <!-- User Information Section -->
-        <section class="user-info-section">
-            <h2>User Information</h2>
-            <div class="user-info">
-                <p>
-                    <strong>First Name:</strong>
-                    <span id="first_name">{{ user.first_name }}</span>
-                    <span class="edit-icon" onclick="editUserInfo('first_name')">✎</span>
-                </p>
-                <p>
-                    <strong>Last Name:</strong>
-                    <span id="last_name">{{ user.last_name }}</span>
-                    <span class="edit-icon" onclick="editUserInfo('last_name')">✎</span>
-                </p>
-                <p>
-                    <strong>Email:</strong>
-                    <span id="email">{{ user.email }}</span>
-                    <span class="edit-icon" onclick="editUserInfo('email')">✎</span>
-                </p>
-                <p>
-                    <strong>Phone:</strong>
-                    <span id="phone">{{ user.phone_number }}</span>
-                    <span class="edit-icon" onclick="editUserInfo('phone')">✎</span>
-                </p>
-            </div>
-        </section>
+        .content-section.active {
+            display: block;
+        }
+    </style>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <!-- <h1>{{user.first_name}}'s Account</h1> -->
+            <!-- <button class="sign-out-button">Sign out</button> -->
+        </header>
 
-        <!-- Student-Specific Sections -->
-        {% if user.is_student %}
-        <section class="questions-section">
-            <h2>Your Questions</h2>
-            <ul id="questions-list">
-                {% for question in questions %}
-                    <li>{{ question.text }} <button onclick="deleteQuestion({{ question.id }})">Delete</button></li>
-                {% endfor %}
-            </ul>
-            <button id="ask-question-btn" onclick="openQuestionModal()">Ask</button>
-        </section>
+        <div class="layout">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="avatar"><img style="width: 100%; border-radius: 50%;"
+                        src="../media/{{ user.profile_picture }}" alt=""></div>
+                <h2>{{user.first_name}} {{user.last_name}}</h2>
+                <p>{{user.email}}</p>
 
-        <section class="feedback-section">
-            <h2>Your Feedback</h2>
-            {% if feedback %}
-                <p id="feedback_text">{{ feedback.text }}</p>
-                <button onclick="editFeedback()">Edit</button>
-                <button onclick="deleteFeedback()">Delete</button>
-            {% else %}
-                <p>No feedback yet. Would you like to write some?</p>
-                <button onclick="openFeedbackModal()">Write Feedback</button>
-            {% endif %}
-        </section>
+                <nav class="sidebar-nav">
+                    <a href="#" class="side-nav-link active" data-section="personal-info">Personal Information</a>
+                    {% if user.is_student %}
+                    <a href="#" class="side-nav-link" data-section="questions">Questions</a>
+                    <a href="#" class="side-nav-link" data-section="feedback">Feedback</a>
+                    {% else %}
+                    <a href="#" class="side-nav-link" data-section="answers">Answers</a>
+                    <a href="#" class="side-nav-link" data-section="questions">Questions</a>
+                    {% endif %}
+                </nav>
+            </aside>
 
-        <!-- Teacher-Specific Sections -->
-        {% else %}
-        <section class="answers-section">
-            <h2>Your Answers</h2>
-            <ul id="answers-list">
-                {% for answer in answers %}
-                    <li>
-                        <span id="answer_{{ answer.id }}">{{ answer.text }}</span>
-                        <span class="edit-icon" onclick="editAnswer({{ answer.id }})">✎</span>
-                        <button onclick="deleteAnswer({{ answer.id }})">Delete</button>
-                    </li>
-                {% endfor %}
-            </ul>
-        </section>
+            <!-- Main Content -->
+            <main class="main-content">
+                <div id="personal-info" class="content-section active">
+                    <div>
+                        <h2>Personal Information</h2>
+                        <p>Manage your personal information, including phone numbers and email addresses where you can
+                            be contacted</p>
+                    </div>
 
-        <section class="unanswered-questions-section">
-            <h2>Unanswered Questions</h2>
-            <ul id="unanswered-questions-list">
-                {% for question in unanswered_questions %}
-                    <li>
-                        {{ question.content }}
-                        <button onclick="answerQuestion({{ question.id }})">Answer</button>
-                    </li>
-                {% endfor %}
-            </ul>
-        </section>
-        {% endif %}
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <label>First Name</label>
+                                <i id="1" class="icon-pencil" onclick="editUserInfo('first_name', this)"></i>
+                            </div>
+                            <p id="first_name">{{user.first_name }}</p>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-header">
+                                <label>Last Name</label>
+                                <i id="2" class="icon-pencil" onclick="editUserInfo('last_name', this)"></i>
+                            </div>
+                            <p id="last_name">{{user.last_name}}</p>
+                        </div>
+                        <div class="info-card full-width">
+                            <div class="info-card-header">
+                                <label>Email</label>
+                                <i id="3" class="icon-pencil" onclick="editUserInfo('email', this)"></i>
+                            </div>
+                            <p id="email">{{user.email}}</p>
+                        </div>
 
-        <!-- Reset Password Button -->
-        <button id="reset-password-btn" class="btn btn-secondary" onclick="resetPassword()">Reset Password</button>
+                        <div class="info-card full-width">
+                            <div class="info-card-header">
+                                <label>Phone Number</label>
+                                <i id="4" class="icon-pencil" onclick="editUserInfo('phone_number', this)"></i>
+                            </div>
+                            <p id="phone_number">{{user.phone_number }}</p>
+                        </div>
+                    </div>
+                </div>
+
+
+                {% if user.is_student %}
+                <div id="questions" class="content-section">
+                    <section class="questions-section">
+                        <h2>Your Questions</h2>
+                        <div class="info-grid">
+                            {% for question in questions %}
+                            <div class="info-card full-width">
+                                <div class="info-card-header">
+                                    <label>Question</label>
+                                    <button onclick="deleteQuestion({{question.id}})">Delete</button>
+                                </div>
+                                <p id="question_{{ question.id }}">{{ question.content }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button id="ask-question-btn" onclick="openQuestionModal()">Ask</button>
+                    </section>
+                </div>
+                <div id="feedback" class="content-section">
+                    <section class="feedback-section">
+                        <div class="info-grid">
+                            <h2>Your Feedback</h2>
+                            {% if feedback %}
+                            <div class="info-card full-width">
+                                <div class="info-card-header">
+                                    <label>Feedback</label>
+                                    <i class="icon-pencil" onclick="editFeedback({{feedback.id}}, this)"></i>
+                                    <button onclick="deleteFeedback({{ feedback.id }})">Delete</button>
+                                </div>
+                                <p id="feedback_{{ feedback.id }}">{{ feedback.feedback }}</p>
+                            </div>
+                            {% else %}
+                            <div class="info-card full-width">
+                                <div class="info-card-header">
+                                    <label>No feedback yet. Would you like to write some?</label>
+                                    <button onclick="CreateFeedback()">Write Feedback</button>
+                                </div>
+                                <p id="feedback"></p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </section>
+                </div>
+
+                {% else %}
+                <div id="answers" class="content-section">
+                    <section class="answers-section">
+                        <div class="info-grid">
+                            <h2>Your Answers</h2>
+                            {% for answer in answers %}
+                            <div class="info-card full-width">
+                                <div class="info-card-header">
+                                    <label>Answer</label>
+                                    <i class="icon-pencil" onclick="editAnswer({{ answer.id }}, this)"></i>
+                                    <button onclick="deleteAnswer({{ answer.id }})">Delete</button>
+                                </div>
+                                <p id="answer_{{ answer.id }}">{{ answer.content }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </section>
+                </div>
+
+                <div id="questions" class="content-section">
+                    <section class="unanswered-questions-section">
+                        <div class="info-grid">
+                            <h2>Unanswered Questions</h2>
+                            {% for question in unanswered_questions %}
+                            <!-- <li> -->
+                            <div class="info-card full-width">
+                                <div class="info-card-header">
+                                    <label>Question</label>
+                                    <button class="original-answer-btn"
+                                        onclick="answerQuestion({{ question.id }}, this)">Answer</button>
+                                    <!-- <i id="4" class="icon-pencil" onclick="editUserInfo('phone_number', this)"></i> -->
+                                </div>
+                                <div id="question_{{ question.id }}">
+                                    <p id="phone_number">{{ question.content }}</p>
+                                </div>
+                            </div>
+
+
+                            <!-- </li> -->
+                            {% endfor %}
+
+                        </div>
+                    </section>
+                </div>
+                {% endif %}
+            </main>
+        </div>
     </div>
-    <script>
-        const profileUrl = "{% url 'core:profile' %}"; // Single URL for all profile actions
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeQuestionModal()">&times;</span>
+            <h2>Ask a New Question</h2>
+            <form id="questionForm">
+                <label for="questionContent">Content:</label>
+                <textarea id="questionContent" rows="4" cols="50" required></textarea>
     
+                <label for="mainTopic">Main Topic:</label>
+                <select id="mainTopic" onchange="updateSubTopics()" required>
+                    <option value="">Select Main Topic</option>
+                    <option value="IELTS">IELTS</option>
+                    <option value="SAT">SAT</option>
+                </select>
+    
+                <label for="subTopic">Sub Topic:</label>
+                <select id="subTopic" required>
+                    <option value="">Select Sub Topic</option>
+                </select>
+    
+                <label for="attachments">Attachments (optional):</label>
+                <input type="file" id="attachments" name="attachments">
+    
+                <div>
+                    <button type="button" onclick="submitQuestion()">Save</button>
+                    <button type="button" onclick="closeQuestionModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function openQuestionModal() {
+            document.getElementById('questionModal').style.display = 'block';
+        }
+
+        function closeQuestionModal() {
+            document.getElementById('questionModal').style.display = 'none';
+        }
+
+        function updateSubTopics() {
+            const mainTopic = document.getElementById('mainTopic').value;
+            const subTopicSelect = document.getElementById('subTopic');
+            subTopicSelect.innerHTML = '<option value="">Select Sub Topic</option>';
+
+            const subTopics = {
+                IELTS: ['Listening', 'Reading', 'Writing', 'Speaking'],
+                SAT: ['Reading', 'Math']
+            };
+
+            if (subTopics[mainTopic]) {
+                subTopics[mainTopic].forEach(subTopic => {
+                    const option = document.createElement('option');
+                    option.textContent = subTopic;
+                    subTopicSelect.appendChild(option);
+                });
+            }
+        }
+
+        function submitQuestion() {
+            const content = document.getElementById('questionContent').value;
+            const mainTopic = document.getElementById('mainTopic').value;
+            const subTopic = document.getElementById('subTopic').value;
+            const attachments = document.getElementById('attachments').files[0];
+
+            const formData = new FormData();
+            formData.append('content', content);
+            formData.append('main_topic', mainTopic);
+            formData.append('sub_topic', subTopic);
+            if (attachments) {
+                formData.append('attachments', attachments);
+            }
+
+            fetch(profileUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: formData
+            }).then(response => {
+                if (response.ok) {
+                    alert("Question added successfully.");
+                    location.reload(); // Reload the page to show the new question
+                } else {
+                    alert("Error adding question.");
+                }
+            });
+        }
+    </script>
+    <!-- FeedBack Section ============================================ -->
+    <script>
+
+        function CreateFeedback() {
+            const feedbackSection = document.querySelector('.feedback-section .info-grid');
+
+            // Remove the existing content
+            feedbackSection.innerHTML = `
+        <h2>Your Feedback</h2>
+        <div class="info-card full-width">
+            <div class="info-card-header">
+                <label>New Feedback</label>
+            </div>
+            <textarea id="new_feedback" rows="4" cols="50"></textarea>
+            <div>
+                <button onclick="submitNewFeedback()">Submit</button>
+                <button onclick="cancelNewFeedback()">Cancel</button>
+            </div>
+        </div>
+    `;
+        }
+
+        function submitNewFeedback() {
+            const newFeedback = document.getElementById('new_feedback').value;
+
+            fetch(profileUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ feedback: newFeedback })
+            }).then(response => {
+                if (response.ok) {
+                    alert("Feedback submitted successfully.");
+                    location.reload(); // Reload the page to show the new feedback
+                } else {
+                    alert("Error submitting feedback.");
+                }
+            });
+        }
+
+        function cancelNewFeedback() {
+            location.reload(); // Simply reload the page to cancel
+        }
+        function editFeedback(feedbackId, element) {
+            const feedbackElement = document.getElementById(`feedback_${feedbackId}`);
+            const feedbackText = feedbackElement.innerText;
+
+            feedbackElement.innerHTML = `
+        <textarea id="edit_feedback_${feedbackId}">${feedbackText}</textarea>
+        <span onclick="saveFeedback(${feedbackId})" class="save-icon"><i class="icon-ok"></i></span>
+        <span onclick="cancelFeedbackEdit(${feedbackId}, '${feedbackText}')" class="cancel-icon"><i class="icon-remove"></i></span>
+    `;
+
+            element.style.display = 'none';
+        }
+
+        function saveFeedback(feedbackId) {
+            const newFeedback = document.getElementById(`edit_feedback_${feedbackId}`).value;
+            fetch(profileUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ feedback: newFeedback })
+            }).then(response => {
+                if (response.ok) {
+                    alert("Feedback updated successfully.");
+                    location.reload(); // Reload the page to show updated feedback
+                } else {
+                    alert("Error updating feedback.");
+                }
+            });
+        }
+
+        function cancelFeedbackEdit(feedbackId, originalText) {
+            const feedbackElement = document.getElementById(`feedback_${feedbackId}`);
+            feedbackElement.innerText = originalText;
+            document.querySelector(`[onclick="editFeedback(${feedbackId}, this)"]`).style.display = 'inline-block';
+        }
+
+        function deleteFeedback(feedbackId) {
+            if (confirm("Are you sure you want to delete this feedback?")) {
+                fetch(profileUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ feedback: 'delete' })
+                }).then(response => {
+                    if (response.ok) {
+                        alert("Feedback deleted successfully.");
+                        location.reload(); // Reload the page to remove the deleted feedback
+                    } else {
+                        alert("Error deleting feedback.");
+                    }
+                });
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.side-nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    // Remove active class from all links and sections
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    contentSections.forEach(s => s.classList.remove('active'));
+
+                    // Add active class to clicked link
+                    this.classList.add('active');
+
+                    // Show corresponding content section
+                    const sectionId = this.getAttribute('data-section');
+                    document.getElementById(sectionId).classList.add('active');
+                });
+            });
+        });
+    </script>
+    <script>
+
+        const profileUrl = "{% url 'core:profile' %}"; // Single URL for all profile actions
+
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -111,16 +422,19 @@
             }
             return cookieValue;
         }
-    
-        function editUserInfo(field) {
+        // Ready =================================================================
+        function editUserInfo(field, a) {
+            const edit_btn = document.querySelector(".icon-pencil");
+            console.log(a);
+            a.style.display = "none";
             const fieldElement = document.getElementById(field);
             const originalText = fieldElement.innerText;
             fieldElement.innerHTML = `<input type="text" value="${originalText}" id="edit_${field}"> 
-                                      <span onclick="saveUserInfo('${field}', '${originalText}')" class="save-icon">✔</span>
-                                      <span onclick="cancelEdit('${field}', '${originalText}')" class="cancel-icon">✖</span>`;
+                                  <span onclick="saveUserInfo('${field}', '${originalText}', this)" class="save-icon"><i class="icon-ok"></i></span>
+                                  <span onclick="cancelEdit('${field}', '${originalText}', this)" class="cancel-icon"><i class="icon-remove"></i></span>`;
         }
-    
-        function saveUserInfo(field, originalText) {
+
+        function saveUserInfo(field, originalText, element) {
             const newValue = document.getElementById(`edit_${field}`).value;
             fetch(profileUrl, {
                 method: 'PUT',
@@ -132,35 +446,47 @@
             }).then(response => {
                 if (response.ok) {
                     document.getElementById(field).innerText = newValue;
+                    showEditIcon(field);
                 } else {
                     alert('Error updating information');
                     document.getElementById(field).innerText = originalText; // Revert to original
+                    showEditIcon(field);
                 }
             });
         }
-    
-        function cancelEdit(field, originalText) {
+
+        function cancelEdit(field, originalText, element) {
             document.getElementById(field).innerText = originalText; // Revert to original
+            showEditIcon(field);
         }
-    
+        // Stop Ready =================================================================
+        function showEditIcon(field) {
+            const editIcon = document.querySelector(`[onclick="editUserInfo('${field}', this)"]`);
+            if (editIcon) {
+                editIcon.style.display = "inline";
+            }
+        }
+
         function deleteQuestion(questionId) {
-            fetch(profileUrl, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie('csrftoken')
-                },
-                body: JSON.stringify({ question_id: questionId })
-            }).then(response => {
-                if (response.ok) {
-                    alert("Question deleted.");
-                    location.reload(); // Reload the page to reflect changes
-                } else {
-                    alert("Error deleting question.");
-                }
-            });
+            if (confirm("Are you sure you want to delete this question?")) {
+                fetch(profileUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ question_id: questionId })
+                }).then(response => {
+                    if (response.ok) {
+                        alert("Question deleted.");
+                        location.reload(); // Reload the page to remove the deleted feedback
+                    } else {
+                        alert("Error deleting question.");
+                    }
+                });
+            }
         }
-    
+
         function addQuestion() {
             const questionText = document.getElementById('new_question_text').value; // Assuming you have an input field for new question
             fetch(profileUrl, {
@@ -179,58 +505,87 @@
                 }
             });
         }
-    
-        function editFeedback() {
-            const feedbackText = document.getElementById('feedback_text').innerText; // Assuming you have an element for feedback
-            document.getElementById('feedback_text').innerHTML = `<input type="text" value="${feedbackText}" id="edit_feedback"> 
-                                                                   <span onclick="saveFeedback()" class="save-icon">✔</span>
-                                                                   <span onclick="cancelFeedbackEdit('${feedbackText}')" class="cancel-icon">✖</span>`;
+
+
+        // Ready =================================================================
+        function answerQuestion(questionId, element) {
+            // Hide the original button or element that triggers this function
+            element.style.display = "none";
+
+            // Find the container where the answer input will be added
+            const questionElement = document.getElementById(`question_${questionId}`);
+
+            if (questionElement) {
+                // Create a new div for the input field and buttons
+                const inputContainer = document.createElement("div");
+                inputContainer.id = `answer_input_container_${questionId}`;
+
+
+                inputContainer.innerHTML = `
+            <input type="text" id="answer_input_${questionId}" placeholder="Type your answer here" style="margin-right: 8px;">
+            <span onclick="submitAnswer(${questionId}, this)" class="save-icon" style="cursor: pointer;"><i class="icon-ok"></i></span>
+            <span onclick="cancelAnswerEdit(${questionId}, this)" class="cancel-icon" style="cursor: pointer;"><i class="icon-remove"></i></span>
+        `;
+
+                // Append the input container to the question element
+                questionElement.appendChild(inputContainer);
+            } else {
+                console.error(`Element with ID question_${questionId} not found.`);
+            }
         }
-    
-        function saveFeedback() {
-            const newFeedback = document.getElementById('edit_feedback').value;
+
+        // Function to submit the answer
+        function submitAnswer(questionId, element) {
+            const answerText = document.getElementById(`answer_input_${questionId}`).value;
+
             fetch(profileUrl, {
-                method: 'PUT',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({ feedback: newFeedback })
+                body: JSON.stringify({ 'question_id': questionId, 'answer': answerText })
             }).then(response => {
                 if (response.ok) {
-                    alert("Feedback updated successfully.");
-                    location.reload(); // Reload the page to show updated feedback
+                    alert("Answer submitted successfully.");
+                    location.reload(); // Reload the page to show the new answer
                 } else {
-                    alert("Error updating feedback.");
+                    alert("Error submitting answer.");
                 }
             });
         }
-    
-        function deleteFeedback() {
-            fetch(profileUrl, {
-                method: 'DELETE',
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie('csrftoken')
-                },
-                body: JSON.stringify({ feedback: true })
-            }).then(response => {
-                if (response.ok) {
-                    alert("Feedback deleted.");
-                    location.reload(); // Reload the page to reflect changes
-                } else {
-                    alert("Error deleting feedback.");
-                }
-            });
+
+        // Function to cancel the answer edit
+        function cancelAnswerEdit(questionId, element) {
+            const inputContainer = document.getElementById(`answer_input_container_${questionId}`);
+
+            if (inputContainer) {
+                inputContainer.remove(); // Remove the input container
+            }
+
+            // Restore the original "Answer" button
+            const questionElement = document.getElementById(`question_${questionId}`);
+            const answerButton = questionElement.querySelector('.original-answer-btn');
+            if (answerButton) {
+                answerButton.style.display = "inline-block";
+            }
         }
-    
-        function editAnswer(answerId) {
-            const answerText = document.getElementById(`answer_${answerId}`).innerText; // Assuming you have an element for each answer
-            document.getElementById(`answer_${answerId}`).innerHTML = `<input type="text" value="${answerText}" id="edit_answer_${answerId}"> 
-                                                                      <span onclick="saveAnswer(${answerId})" class="save-icon">✔</span>
-                                                                      <span onclick="cancelAnswerEdit(${answerId}, '${answerText}')" class="cancel-icon">✖</span>`;
+
+    </script>
+    <script>
+        function editAnswer(answerId, element) {
+            const answerElement = document.getElementById(`answer_${answerId}`);
+            const answerText = answerElement.innerText;
+
+            answerElement.innerHTML = `
+                <input type="text" value="${answerText}" id="edit_answer_${answerId}">
+                <span onclick="saveAnswer(${answerId})" class="save-icon">✔️</span>
+                <span onclick="cancelAnswerEdit(${answerId}, '${answerText}')" class="cancel-icon">✖️</span>
+            `;
+
+            element.style.display = 'none';
         }
-    
+
         function saveAnswer(answerId) {
             const newAnswer = document.getElementById(`edit_answer_${answerId}`).value;
             fetch(profileUrl, {
@@ -249,43 +604,34 @@
                 }
             });
         }
-    
-        function deleteAnswer(answerId) {
-            fetch(profileUrl, {
-                method: 'DELETE',
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCookie('csrftoken')
-                },
-                body: JSON.stringify({ answer_id: answerId })
-            }).then(response => {
-                if (response.ok) {
-                    alert("Answer deleted.");
-                    location.reload(); // Reload the page to reflect changes
-                } else {
-                    alert("Error deleting answer.");
-                }
-            });
+
+        function cancelAnswerEdit(answerId, originalText) {
+            const answerElement = document.getElementById(`answer_${answerId}`);
+            answerElement.innerText = originalText;
+            document.querySelector(`[onclick="editAnswer(${answerId}, this)"]`).style.display = 'inline-block';
         }
-    
-        function answerQuestion(questionId) {
-            const answerText = document.getElementById(`answer_input_${questionId}`).value; // Assuming you have an input field for the answer
-            fetch(profileUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({ question_id: questionId, answer: answerText })
-            }).then(response => {
-                if (response.ok) {
-                    alert("Answer submitted successfully.");
-                    location.reload(); // Reload the page to show the new answer
-                } else {
-                    alert("Error submitting answer.");
-                }
-            });
+
+        function deleteAnswer(answerId) {
+            if (confirm("Are you sure you want to delete this answer?")) {
+                fetch(profileUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ answer_id: answerId })
+                }).then(response => {
+                    if (response.ok) {
+                        alert("Answer deleted.");
+                        location.reload(); // Reload the page to reflect changes
+                    } else {
+                        alert("Error deleting answer.");
+                    }
+                });
+            }
         }
     </script>
+    {% endblock %}
 </body>
+
 </html>

@@ -1,3 +1,4 @@
+{% extends 'base.html' %}
 {% load static %}
 <!doctype html>
 <html lang="en">
@@ -17,114 +18,22 @@
   <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
   <!-- Material Kit CSS -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/material-kit.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'css/contactsection.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'css/faqsection.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'css/valuesSection.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'css/testimonials.css' %}" />
   <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}" />
 
+  <link rel="stylesheet" type="text/css" href="{% static 'css/material-kit.css' %}" />
   <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
   <!-- Navbar Transparent -->
-  <div class="container position-sticky z-index-sticky top-0">
-    <div class="row">
-      <div class="col-12">
-            <nav class="navbar navbar-expand-lg blur border-radius-xl mt-4 top-0 z-index-3 shadow position-absolute my-3 py-2 start-0 end-0 mx-4">
-                <div class="container-fluid px-0">
-                    <a class="navbar-brand font-weight-bolder ms-sm-3" href="https://demos.creative-tim.com/material-kit/index" rel="tooltip" title="Designed and Coded by Creative Tim" data-placement="bottom" target="_blank">
-                      Students League
-                    </a>
-      <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
-        data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon mt-2">
-          <span class="navbar-toggler-bar bar1"></span>
-          <span class="navbar-toggler-bar bar2"></span>
-          <span class="navbar-toggler-bar bar3"></span>
-        </span>
-      </button>
-      <div class="collapse navbar-collapse w-100 pt-3 pb-2 py-lg-0 ms-lg-12 ps-lg-5" id="navigation">
-        <ul class="navbar-nav navbar-nav-hover ms-auto">
-          <!-- Home -->
-          <!-- style="background-color: #2196F3; border-radius: 10px; padding-right: 5px" -->
-          <li class="nav-item mx-2">
-            <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:home' %}">
-              <i class="material-icons opacity-6 me-2 text-md" >home</i>
-              Home
-            </a>
-          </li>
-
-          <!-- About Us -->
-          <li class="nav-item mx-2">
-            <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:about' %}">
-              <i class="material-icons opacity-6 me-2 text-md">info</i>
-              About Us
-            </a>
-          </li>
-
-          <!-- FAQ -->
-          <li class="nav-item mx-2">
-            <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:faq' %}">
-              <i class="material-icons opacity-6 me-2 text-md">help</i>
-              FAQ
-            </a>
-          </li>
-
-          <!-- Contact Us -->
-          <li class="nav-item mx-2">
-            <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:contact' %}">
-              <i class="material-icons opacity-6 me-2 text-md">contact_mail</i>
-              Contact Us
-            </a>
-          </li>
-
-          {% if user.is_authenticated %}
-          <!-- Sign Out -->
-          <li class="nav-item mx-2">
-            <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:logout' %}">
-              <i class="material-icons opacity-6 me-2 text-md">logout</i>
-              Log out
-            </a>
-          </li>
-          <!-- Profile -->
-          <li class="nav-item mx-2">
-            <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:profile' %}">
-              <i class="material-icons opacity-6 me-2 text-md">person</i>
-              Profile
-            </a>
-          </li>
-          {% else %}
-          <!-- Sign In -->
-          <li class="nav-item mx-2">
-            <a class="nav-link ps-2 d-flex align-items-center" href="{% url  'core:login' %}">
-              <i class="material-icons opacity-6 me-2 text-md">login</i>
-              Sign In
-            </a>
-          </li>
-          <!-- Sign Up -->
-          <li class="nav-item mx-2">
-            <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:sign_up' %}">
-              <i class="material-icons opacity-6 me-2 text-md">person_add</i>
-              Sign Up
-            </a>
-          </li>
-          {% endif %}
-          <!-- Button for Free Download (example) -->
-
-        </ul>
-      </div>
-    </div>
-  </nav>
-      </div>
-      </div>
-      </div>
-
   <!-- End Navbar -->
 
-
+{% block content %}
   <!-- -------- START HEADER 7 w/ text and video ------- -->
   <header class="bg-gradient-dark">
     <div class="page-header min-vh-75" style="background-image: url('{% static "img/bg5.jpg" %}')">
@@ -133,7 +42,8 @@
         <div class="row justify-content-center">
           <div class="col-lg-8 text-center mx-auto my-auto">
             <h1 class="text-white">Work with an amazing design</h1>
-            <p class="lead mb-4 text-white opacity-8">We’re constantly trying to express ourselves and actualize our dreams. If you have the opportunity to play this game</p>
+            <p class="lead mb-4 text-white opacity-8">We’re constantly trying to express ourselves and actualize our
+              dreams. If you have the opportunity to play this game</p>
             <button type="submit" class="btn bg-white text-dark">Create Account</button>
             <h6 class="text-white mb-2 mt-5">Find us on</h6>
             <div class="d-flex justify-content-center">
@@ -160,63 +70,64 @@
     <!-- Values Section  -->
     <section class="unique_about_section" id="unique_about_section">
       <div class="unique_values_container">
-          <!-- Header Section -->
-          <div class="row justifyContentCenter textCenter mb5">
-              <div class="col colMd8">
-                  <h2 class="unique_heading fwBold mb4">Our Story</h2>
-                  <p class="unique_subHeading">
-                      We not only make the world's most comfortable hammocks, but through training and
-                      sustainable job creation, we empower our weavers and their families to break the cycle
-                      of poverty and build a brighter future.
-                  </p>
-              </div>
+        <!-- Header Section -->
+        <div class="row justifyContentCenter textCenter mb5">
+          <div class="col colMd8">
+            <h2 class="unique_heading fwBold mb4">Our Story</h2>
+            <p class="unique_subHeading">
+              We not only make the world's most comfortable hammocks, but through training and
+              sustainable job creation, we empower our weavers and their families to break the cycle
+              of poverty and build a brighter future.
+            </p>
           </div>
-  
-          <!-- Story Items -->
-          <div class="row alignItemsCenter justifyContentCenter mt5">
-              <div class="unique_content order2 psMd5">
-                  <h4 class="fwBold">The journey to relaxation.</h4>
-                  <p class="mb0">
-                      Finding a hammock you can truly relax in didn't happen overnight. It started with a chance discovery while
-                      on vacation, and took a lot of hard work (and a lot of hanging around) to bring the softest, most
-                      comfortable, and thoughtfully crafted hammocks to your backyard.
-                  </p>
-              </div>
-              <div class="order1 mb4 mbMd0">
-                  <div>
-                      <img src="https://cdn.easyfrontend.com/pictures/featured/featured_13.png" alt="The journey to relaxation"
-                          class="imgFluid" />
-                  </div>
-              </div>
-          </div>
-  
-          <div class="row alignItemsCenter justifyContentCenter mt5">
-              <div class="unique_content order2 orderMd1 peMd5">
-                  <h4 class="fwBold">The way to heaven.</h4>
-                  <p class="mb0">
-                      More off this less hello salamander lied porpoise much over tightly circa horse taped so innocuously
-                      outside crud mightily rigorous negative one inside gorilla and drew humbly shot tortoise inside opaquely.
-                      Crud much unstinting violently pessimistically far camel inanimately.
-                  </p>
-              </div>
-              <div class="order1 orderMd2 mb4 mbMd0">
-                  <div>
-                      <img src="https://cdn.easyfrontend.com/pictures/about/about9.jpg" alt="The way to heaven"
-                          class="imgFluid" />
-                  </div>
-              </div>
-          </div>
-      </div>
-  </section>
+        </div>
 
-     <!-- -------- END Content Presentation Docs ------- -->
-     <section class="py-7">
+        <!-- Story Items -->
+        <div class="row alignItemsCenter justifyContentCenter mt5">
+          <div class="unique_content order2 psMd5">
+            <h4 class="fwBold">The journey to relaxation.</h4>
+            <p class="mb0">
+              Finding a hammock you can truly relax in didn't happen overnight. It started with a chance discovery while
+              on vacation, and took a lot of hard work (and a lot of hanging around) to bring the softest, most
+              comfortable, and thoughtfully crafted hammocks to your backyard.
+            </p>
+          </div>
+          <div class="order1 mb4 mbMd0">
+            <div>
+              <img src="https://cdn.easyfrontend.com/pictures/featured/featured_13.png" alt="The journey to relaxation"
+                class="imgFluid" />
+            </div>
+          </div>
+        </div>
+
+        <div class="row alignItemsCenter justifyContentCenter mt5">
+          <div class="unique_content order2 orderMd1 peMd5">
+            <h4 class="fwBold">The way to heaven.</h4>
+            <p class="mb0">
+              More off this less hello salamander lied porpoise much over tightly circa horse taped so innocuously
+              outside crud mightily rigorous negative one inside gorilla and drew humbly shot tortoise inside opaquely.
+              Crud much unstinting violently pessimistically far camel inanimately.
+            </p>
+          </div>
+          <div class="order1 orderMd2 mb4 mbMd0">
+            <div>
+              <img src="https://cdn.easyfrontend.com/pictures/about/about9.jpg" alt="The way to heaven"
+                class="imgFluid" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- -------- END Content Presentation Docs ------- -->
+    <section class="py-7">
       <div class="container">
         <div class="row">
           <div class="col-lg-6 mx-auto text-center">
             <h2 class="mb-0">Trusted by over</h2>
             <h2 class="text-gradient text-primary mb-3">1,679,477+ web developers</h2>
-            <p class="lead">Many Fortune 500 companies, startups, universities and governmental institutions love Creative Tim's products. </p>
+            <p class="lead">Many Fortune 500 companies, startups, universities and governmental institutions love
+              Creative Tim's products. </p>
           </div>
         </div>
         <hr class="horizontal dark my-5">
@@ -286,7 +197,8 @@
           {% for feedback in feedbacks %}
           <div class="swiperSlide testimonial">
             <div class="imageContainer">
-              <img src="{{ feedback.user.profile_picture.url }}" alt="{{ feedback.user.first_name }} {{ feedback.user.last_name }}" class="image">
+              <img src="{{ feedback.user.profile_picture.url }}"
+                alt="{{ feedback.user.first_name }} {{ feedback.user.last_name }}" class="image">
             </div>
             <h3 class="name">{{ feedback.user.first_name }} {{ feedback.user.last_name }}</h3>
             <p class="title">{{ feedback.user.email }}</p>
@@ -302,14 +214,14 @@
 
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script>
-        var swiper = new Swiper('.swiper', {
-            slidesPerView: 3,
-            spaceBetween: 30,
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true
-            },
-        });
+      var swiper = new Swiper('.swiper', {
+        slidesPerView: 3,
+        spaceBetween: 30,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true
+        },
+      });
     </script>
 
 
@@ -560,6 +472,8 @@
     </div>
   </footer>
 </body>
+
+{% endblock %}
 
 
 </html>

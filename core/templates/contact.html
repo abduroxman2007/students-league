@@ -1,3 +1,4 @@
+{% extends 'base.html' %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" itemscope itemtype="http://schema.org/WebPage">
@@ -22,101 +23,11 @@
   <!-- CSS Files -->
   <link id="pagestyle" href="{% static '/css/material-kit.css' %}" rel="stylesheet" />
 </head>
-
+{% block content %}
 <body class="contact-us">
   <!-- Navbar -->
      <!-- Navbar Transparent -->
-    <div class="container position-sticky z-index-sticky top-0">
-        <div class="row">
-          <div class="col-12">
-                <nav class="navbar navbar-expand-lg blur border-radius-xl mt-4 top-0 z-index-3 shadow position-absolute my-3 py-2 start-0 end-0 mx-4">
-                    <div class="container-fluid px-0">
-                        <a class="navbar-brand font-weight-bolder ms-sm-3" href="https://demos.creative-tim.com/material-kit/index" rel="tooltip" title="Designed and Coded by Creative Tim" data-placement="bottom" target="_blank">
-                          Students League
-                        </a>
-                    <button class="navbar-toggler shadow-none ms-2" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navigation" aria-controls="navigation" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon mt-2">
-                        <span class="navbar-toggler-bar bar1"></span>
-                        <span class="navbar-toggler-bar bar2"></span>
-                        <span class="navbar-toggler-bar bar3"></span>
-                    </span>
-                    </button>
-                    <div class="collapse navbar-collapse w-100 pt-3 pb-2 py-lg-0 ms-lg-12 ps-lg-5" id="navigation">
-                    <ul class="navbar-nav navbar-nav-hover ms-auto">
-                        <!-- Home -->
-                        <!-- style="background-color: #2196F3; border-radius: 10px; padding-right: 5px" -->
-                        <li class="nav-item mx-2">
-                        <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:home' %}">
-                            <i class="material-icons opacity-6 me-2 text-md" >home</i>
-                            Home
-                        </a>
-                        </li>
-
-                        <!-- About Us -->
-                        <li class="nav-item mx-2">
-                        <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:about' %}">
-                            <i class="material-icons opacity-6 me-2 text-md">info</i>
-                            About Us
-                        </a>
-                        </li>
-
-                        <!-- FAQ -->
-                        <li class="nav-item mx-2">
-                        <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:faq' %}">
-                            <i class="material-icons opacity-6 me-2 text-md">help</i>
-                            FAQ
-                        </a>
-                        </li>
-
-                        <!-- Contact Us -->
-                        <li class="nav-item mx-2">
-                        <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:contact' %}">
-                            <i class="material-icons opacity-6 me-2 text-md">contact_mail</i>
-                            Contact Us
-                        </a>
-                        </li>
-
-                        {% if user.is_authenticated %}
-                        <!-- Sign Out -->
-                        <li class="nav-item mx-2">
-                        <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:logout' %}">
-                            <i class="material-icons opacity-6 me-2 text-md">logout</i>
-                            Log out
-                        </a>
-                        </li>
-                        <!-- Profile -->
-                        <li class="nav-item mx-2">
-                        <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:profile' %}">
-                            <i class="material-icons opacity-6 me-2 text-md">person</i>
-                            Profile
-                        </a>
-                        </li>
-                        {% else %}
-                        <!-- Sign In -->
-                        <li class="nav-item mx-2">
-                        <a class="nav-link ps-2 d-flex align-items-center" href="{% url  'core:login' %}">
-                            <i class="material-icons opacity-6 me-2 text-md">login</i>
-                            Sign In
-                        </a>
-                        </li>
-                        <!-- Sign Up -->
-                        <li class="nav-item mx-2">
-                        <a class="nav-link ps-2 d-flex align-items-center" href="{% url 'core:sign_up' %}">
-                            <i class="material-icons opacity-6 me-2 text-md">person_add</i>
-                            Sign Up
-                        </a>
-                        </li>
-                        {% endif %}
-                        <!-- Button for Free Download (example) -->
-
-                    </ul>
-                    </div>
-                </div>
-                </nav>
-          </div>    
-        </div>    
-    </div>    
+       
 
   <!-- -------- START HEADER 8 w/ card over right bg image ------- -->
   <section>
@@ -135,7 +46,7 @@
               </div>
               <div class="card-body">
                 <p class="pb-3">
-                  For further questions, including partnership opportunities, please email hello@creative-tim.com
+                  For further questions, including partnership opportunities, please email abduraxmonovabduraxmon794@gmail.com
                   or contact using our contact form.
                 </p>
                 <form id="contact-form" method="post" autocomplete="off">
@@ -150,7 +61,7 @@
                       <div class="col-md-6 ps-md-2">
                         <div class="input-group input-group-static mb-4">
                           <label>Email</label>
-                          <input type="email" class="form-control" placeholder="hello@creative-tim.com">
+                          <input type="email" class="form-control" placeholder="abduraxmonovabduraxmon794@gmail.com">
                         </div>
                       </div>
                     </div>
@@ -355,6 +266,7 @@ function closeModal() {
   <!--  Google Maps Plugin    -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDTTfWur0PDbZWPr7Pmq8K3jiDp0_xUziI"></script>
   <script src="{% static '/js/material-kit.min.js?v=3.0.3' %}" type="text/javascript"></script>
+  {% endblock %}
 </body>
 
 </html>
